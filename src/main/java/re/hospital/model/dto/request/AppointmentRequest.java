@@ -1,0 +1,18 @@
+package re.hospital.model.dto.request;
+
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+import java.time.LocalDateTime;
+
+@Data
+public class AppointmentRequest {
+    @NotNull(message = "Doctor ID is required")
+    private Long doctorId;
+
+    @NotNull(message = "Appointment time is required")
+    @Future(message = "Appointment time must be in the future")
+    private LocalDateTime appointmentTime;
+
+    private String notes;
+}
