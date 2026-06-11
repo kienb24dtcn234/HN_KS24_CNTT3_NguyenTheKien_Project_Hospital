@@ -58,7 +58,7 @@ public class APIControllerAdvice {
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<Map<String, Object>> handleTokenRefresh(TokenRefreshException ex) {
-        return ResponseEntity.status(HttpStatus. UNAUTHORIZED).body(Map.of(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
                 "status", 401, "error", "Unauthorized", "message", ex.getMessage()));
     }

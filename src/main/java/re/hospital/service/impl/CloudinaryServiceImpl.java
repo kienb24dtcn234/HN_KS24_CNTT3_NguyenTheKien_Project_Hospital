@@ -1,6 +1,6 @@
 package re.hospital.service.impl;
 
-import com.cloudinary. Cloudinary;
+import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,11 +19,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     @Override
     public String uploadFile(MultipartFile file) {
         try {
-            Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap(
-                            "folder", "hospital-records",
-                            "resource_type", "auto"
-                    ));
+            Map<?, ?> result = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", "hospital-records", "resource_type", "auto"));
             return result.get("secure_url").toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload file: " + e.getMessage());

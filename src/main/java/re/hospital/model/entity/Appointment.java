@@ -3,11 +3,16 @@ package re.hospital.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import re.hospital.model.enums.AppointmentStatus;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "appointments")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +22,7 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = false)
     private User patient;
 
-    @ManyToOne(fetch = FetchType. LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
     private User doctor;
 

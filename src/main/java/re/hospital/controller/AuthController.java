@@ -22,7 +22,7 @@ import re.hospital.service.RefreshTokenService;
 import re.hospital.model.dto.request.ChangePasswordRequest;
 import re.hospital.model.dto.request.ForgotPasswordRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
+import re.hospital.model.dto.request.ResetPasswordRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -85,5 +85,12 @@ public class AuthController {
             @Valid @RequestBody ForgotPasswordRequest request) {
         return ResponseEntity.ok(ApiResponse.success(authService.forgotPassword(request)));
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<String>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(authService.resetPassword(request)));
+    }
+
 
 }

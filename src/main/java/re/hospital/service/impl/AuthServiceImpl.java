@@ -9,8 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import re.hospital.exception.ConflictException;
-import re.hospital.model.dto.request.LoginRequest;
-import re.hospital.model.dto.request.RegisterRequest;
+import re.hospital.exception.ResourceNotFoundException;
+import re.hospital.model.dto.request.*;
 import re.hospital.model.dto.response.JWTResponse;
 import re.hospital.model.entity.*;
 import re.hospital.model.enums.RoleName;
@@ -18,12 +18,10 @@ import re.hospital.repository.*;
 import re.hospital.security.jwt.JWTProvider;
 import re.hospital.security.principal.CustomUserDetails;
 import re.hospital.service.AuthService;
-import re.hospital.service.RefreshTokenService;
-import re.hospital.model.dto.request.ChangePasswordRequest;
-import re.hospital.model.dto.request.ForgotPasswordRequest;
-import re.hospital.exception.ResourceNotFoundException;
+import re.hospital.service. RefreshTokenService;
 
-
+import java.time.Instant;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final TokenBlacklistRepository tokenBlacklistRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     @Transactional
@@ -116,12 +115,41 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public String forgotPassword(ForgotPasswordRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
+        userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+
+        passwordResetTokenRepository.save(PasswordResetToken.builder()
+                .email(request.getEmail())
+                .otp(otp)
+                .expiryDate(Instant.now().plusSeconds(300))
+                .used(false)
+                .build());
+
+        return "OTP sent to email. OTP (for testing): " + otp;
+    }
+
+    @Override
+    @Transactional
+    public String resetPassword(ResetPasswordRequest request) {
+        PasswordResetToken token = passwordResetTokenRepository
+                .findByEmailAndOtpAndUsedFalse(request.getEmail(), request.getOtp())
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired OTP"));
+
+        if (token.getExpiryDate().isBefore(Instant.now())) {
+            throw new ConflictException("OTP has expired");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        token.setUsed(true);
+        passwordResetTokenRepository.save(token);
+
         return "Password reset successfully";
     }
-
 }
