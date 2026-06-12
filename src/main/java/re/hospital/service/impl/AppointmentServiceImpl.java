@@ -30,9 +30,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public AppointmentResponse createAppointment(Long patientId, AppointmentRequest request) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bệnh nhân"));
         User doctor = userRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + request.getDoctorId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bác sĩ với id: " + request.getDoctorId()));
 
         boolean conflict = appointmentRepository.existsByDoctorAndAppointmentTimeBetweenAndStatusNot(
                 doctor,
@@ -41,7 +41,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 AppointmentStatus.CANCELLED);
 
         if (conflict) {
-            throw new ConflictException("Doctor already has an appointment at this time");
+            throw new ConflictException("Bác sĩ đã có lịch khám vào thời gian này");
         }
 
         Appointment appointment = Appointment.builder()
@@ -58,7 +58,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Page<AppointmentResponse> getPatientAppointments(Long patientId, Pageable pageable) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bệnh nhân"));
         return appointmentRepository.findByPatientOrderByCreatedAtDesc(patient, pageable)
                 .map(this::toResponse);
     }
@@ -93,7 +93,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public List<AppointmentResponse> getPendingAppointments(Long doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bác sĩ"));
         return appointmentRepository.findByDoctorAndStatus(doctor, AppointmentStatus.PENDING).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -101,12 +101,12 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private Appointment findAppointment(Long id) {
         return appointmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lịch khám với id: " + id));
     }
 
     private void validateStatus(Appointment appointment, AppointmentStatus expected) {
         if (appointment.getStatus() != expected) {
-            throw new ConflictException("Appointment status must be " + expected + ", current: " + appointment.getStatus());
+            throw new ConflictException("Trạng thái lịch khám phải là " + expected + ", hiện tại: " + appointment.getStatus());
         }
     }
 

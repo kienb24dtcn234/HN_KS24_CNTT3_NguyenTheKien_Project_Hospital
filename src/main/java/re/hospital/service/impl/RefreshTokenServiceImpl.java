@@ -28,7 +28,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public RefreshToken createRefreshToken(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
@@ -44,11 +44,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getRevoked()) {
             refreshTokenRepository.delete(token);
-            throw new TokenRefreshException("Refresh token has been revoked");
+            throw new TokenRefreshException("Refresh token đã bị thu hồi");
         }
         if (token.getExpiryDate().isBefore(Instant.now())) {
             refreshTokenRepository.delete(token);
-            throw new TokenRefreshException("Refresh token expired. Please login again");
+            throw new TokenRefreshException("Refresh token đã hết hạn. Vui lòng đăng nhập lại");
         }
         return token;
     }
@@ -57,7 +57,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public void revokeAllUserTokens(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         refreshTokenRepository.revokeAllByUser(user);
     }
 }

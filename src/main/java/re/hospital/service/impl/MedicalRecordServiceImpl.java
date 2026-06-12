@@ -32,9 +32,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Transactional
     public MedicalRecordResponse createRecord(Long doctorId, MedicalRecordRequest request, MultipartFile file) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bác sĩ"));
         User patient = userRepository.findById(request.getPatientId())
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found with id: " + request.getPatientId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bệnh nhân với id: " + request.getPatientId()));
 
         MedicalRecord record = MedicalRecord.builder()
                 .doctor(doctor)
@@ -45,7 +45,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
         if (request.getAppointmentId() != null) {
             Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lịch khám"));
             record.setAppointment(appointment);
         }
 
@@ -60,7 +60,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     public List<MedicalRecordResponse> getRecordsByPatient(Long patientId) {
         User patient = userRepository.findById(patientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bệnh nhân"));
         return medicalRecordRepository.findByPatientOrderByCreatedAtDesc(patient).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -69,7 +69,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     public List<MedicalRecordResponse> getRecordsByDoctor(Long doctorId) {
         User doctor = userRepository.findById(doctorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doctor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bác sĩ"));
         return medicalRecordRepository.findByDoctorOrderByCreatedAtDesc(doctor).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());

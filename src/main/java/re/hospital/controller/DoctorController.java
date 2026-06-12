@@ -1,21 +1,20 @@
 package re.hospital.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import re.hospital.model.dto.request.MedicalRecordRequest;
 import re.hospital.model.dto.response.ApiResponse;
 import re.hospital.model.dto.response.AppointmentResponse;
+import re.hospital.model.dto.response.MedicalRecordResponse;
 import re.hospital.security.principal.CustomUserDetails;
 import re.hospital.service.AppointmentService;
-import re.hospital.model.dto.request.MedicalRecordRequest;
-import re.hospital.model.dto.response.MedicalRecordResponse;
 import re.hospital.service.MedicalRecordService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
-import jakarta.validation.Valid;
-import java.util.List;
 
 import java.util.List;
 
@@ -27,29 +26,28 @@ public class DoctorController {
     private final AppointmentService appointmentService;
     private final MedicalRecordService medicalRecordService;
 
-
     @GetMapping("/appointments/pending")
     public ResponseEntity<ApiResponse<List<AppointmentResponse>>> getPendingAppointments(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.success("Pending appointments",
+        return ResponseEntity.ok(ApiResponse.success("Danh sách lịch chờ duyệt",
                 appointmentService.getPendingAppointments(userDetails.getUser().getId())));
     }
 
     @PutMapping("/appointments/{id}/approve")
     public ResponseEntity<ApiResponse<AppointmentResponse>> approve(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Appointment approved",
+        return ResponseEntity.ok(ApiResponse.success("Đã duyệt lịch khám",
                 appointmentService.approveAppointment(id)));
     }
 
     @PutMapping("/appointments/{id}/reject")
     public ResponseEntity<ApiResponse<AppointmentResponse>> reject(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Appointment rejected",
+        return ResponseEntity.ok(ApiResponse.success("Đã từ chối lịch khám",
                 appointmentService.rejectAppointment(id)));
     }
 
     @PutMapping("/appointments/{id}/complete")
     public ResponseEntity<ApiResponse<AppointmentResponse>> complete(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Appointment completed",
+        return ResponseEntity.ok(ApiResponse.success("Đã hoàn thành khám",
                 appointmentService.completeAppointment(id)));
     }
 
@@ -59,15 +57,14 @@ public class DoctorController {
             @Valid @ModelAttribute MedicalRecordRequest request,
             @RequestParam(value = "file", required = false) MultipartFile file) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Medical record created",
+                .body(ApiResponse.success("Tạo hồ sơ bệnh án thành công",
                         medicalRecordService.createRecord(userDetails.getUser().getId(), request, file)));
     }
 
     @GetMapping("/records")
     public ResponseEntity<ApiResponse<List<MedicalRecordResponse>>> getMyRecords(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.success("Your medical records",
+        return ResponseEntity.ok(ApiResponse.success("Hồ sơ bệnh án bạn đã tạo",
                 medicalRecordService.getRecordsByDoctor(userDetails.getUser().getId())));
     }
-
 }

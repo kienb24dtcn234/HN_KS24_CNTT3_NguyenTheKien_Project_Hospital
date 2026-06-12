@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 @Data
 public class AppointmentRequest {
-    @NotNull(message = "Doctor ID is required")
+    @NotNull(message = "Mã bác sĩ không được để trống")
     private Long doctorId;
 
-    @NotNull(message = "Appointment time is required")
-    @Future(message = "Appointment time must be in the future")
+    @NotNull(message = "Thời gian khám không được để trống")
+    @Future(message = "Thời gian khám phải là thời gian trong tương lai")
     private LocalDateTime appointmentTime;
 
     private String notes;

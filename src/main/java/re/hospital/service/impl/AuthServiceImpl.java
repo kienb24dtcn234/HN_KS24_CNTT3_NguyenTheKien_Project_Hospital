@@ -18,7 +18,7 @@ import re.hospital.repository.*;
 import re.hospital.security.jwt.JWTProvider;
 import re.hospital.security.principal.CustomUserDetails;
 import re.hospital.service.AuthService;
-import re.hospital.service. RefreshTokenService;
+import re.hospital.service.RefreshTokenService;
 
 import java.time.Instant;
 import java.util.Random;
@@ -65,12 +65,12 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public String register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername()))
-            throw new ConflictException("Username already exists");
+            throw new ConflictException("Tên đăng nhập đã tồn tại");
         if (userRepository.existsByEmail(request.getEmail()))
-            throw new ConflictException("Email already exists");
+            throw new ConflictException("Email đã tồn tại");
 
         Role patientRole = roleRepository.findByName(RoleName.ROLE_PATIENT)
-                .orElseThrow(() -> new RuntimeException("Role PATIENT not found"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò PATIENT"));
 
         User user = User.builder()
                 .username(request.getUsername())
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
-        return "Registration successful";
+        return "Đăng ký thành công";
     }
 
     @Override
@@ -101,22 +101,22 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public String changePassword(Long userId, ChangePasswordRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new ConflictException("Current password is incorrect");
+            throw new ConflictException("Mật khẩu hiện tại không đúng");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
-        return "Password changed successfully";
+        return "Đổi mật khẩu thành công";
     }
 
     @Override
     @Transactional
     public String forgotPassword(ForgotPasswordRequest request) {
         userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + request.getEmail()));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng với email: " + request.getEmail()));
 
         String otp = String.format("%06d", new Random().nextInt(999999));
 
@@ -127,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
                 .used(false)
                 .build());
 
-        return "OTP sent to email. OTP (for testing): " + otp;
+        return "Mã OTP đã được gửi đến email. OTP (dùng để test): " + otp;
     }
 
     @Override
@@ -135,14 +135,14 @@ public class AuthServiceImpl implements AuthService {
     public String resetPassword(ResetPasswordRequest request) {
         PasswordResetToken token = passwordResetTokenRepository
                 .findByEmailAndOtpAndUsedFalse(request.getEmail(), request.getOtp())
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired OTP"));
+                .orElseThrow(() -> new ResourceNotFoundException("Mã OTP không hợp lệ hoặc đã hết hạn"));
 
         if (token.getExpiryDate().isBefore(Instant.now())) {
-            throw new ConflictException("OTP has expired");
+            throw new ConflictException("Mã OTP đã hết hạn");
         }
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -150,6 +150,6 @@ public class AuthServiceImpl implements AuthService {
         token.setUsed(true);
         passwordResetTokenRepository.save(token);
 
-        return "Password reset successfully";
+        return "Đặt lại mật khẩu thành công";
     }
 }

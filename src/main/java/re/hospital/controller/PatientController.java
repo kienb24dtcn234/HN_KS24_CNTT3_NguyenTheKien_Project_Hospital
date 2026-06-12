@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import re.hospital.model.dto.request.AppointmentRequest;
 import re.hospital.model.dto.response.ApiResponse;
 import re.hospital.model.dto.response.AppointmentResponse;
-import re.hospital.model.dto.response.UserResponse;
+import re.hospital.model.dto.response.MedicalRecordResponse;
 import re.hospital.security.principal.CustomUserDetails;
 import re.hospital.service.AppointmentService;
-import re.hospital.service.UserService;
-import re.hospital.model.dto.response.MedicalRecordResponse;
 import re.hospital.service.MedicalRecordService;
-import java.util.List;
+import re.hospital.service.UserService;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/patient")
@@ -31,7 +30,7 @@ public class PatientController {
 
     @GetMapping("/doctors")
     public ResponseEntity<ApiResponse<?>> getDoctors() {
-        return ResponseEntity.ok(ApiResponse.success("Doctors list", userService.getDoctors()));
+        return ResponseEntity.ok(ApiResponse.success("Danh sách bác sĩ", userService.getDoctors()));
     }
 
     @PostMapping("/appointments")
@@ -39,7 +38,7 @@ public class PatientController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody AppointmentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Appointment created",
+                .body(ApiResponse.success("Đặt lịch khám thành công",
                         appointmentService.createAppointment(userDetails.getUser().getId(), request)));
     }
 
@@ -48,15 +47,15 @@ public class PatientController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success("Your appointments",
+        return ResponseEntity.ok(ApiResponse.success("Lịch sử khám bệnh",
                 appointmentService.getPatientAppointments(
                         userDetails.getUser().getId(), PageRequest.of(page, size))));
     }
+
     @GetMapping("/records")
     public ResponseEntity<ApiResponse<List<MedicalRecordResponse>>> getMyRecords(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return ResponseEntity.ok(ApiResponse.success("Your medical records",
+        return ResponseEntity.ok(ApiResponse.success("Hồ sơ bệnh án của bạn",
                 medicalRecordService.getRecordsByPatient(userDetails.getUser().getId())));
     }
-
 }

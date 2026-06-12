@@ -6,10 +6,10 @@ import lombok.Data;
 
 @Data
 public class ChangePasswordRequest {
-    @NotBlank(message = "Current password is required")
+    @NotBlank(message = "Mật khẩu hiện tại không được để trống")
     private String currentPassword;
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 6, message = "New password must be at least 6 characters")
+    @NotBlank(message = "Mật khẩu mới không được để trống")
+    @Size(min = 6, message = "Mật khẩu mới phải có ít nhất 6 ký tự")
     private String newPassword;
 }

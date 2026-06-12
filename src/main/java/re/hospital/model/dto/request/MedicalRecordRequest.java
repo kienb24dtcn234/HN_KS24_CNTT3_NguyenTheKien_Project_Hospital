@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class MedicalRecordRequest {
-    @NotNull(message = "Patient ID is required")
+    @NotNull(message = "Mã bệnh nhân không được để trống")
     private Long patientId;
 
     private Long appointmentId;

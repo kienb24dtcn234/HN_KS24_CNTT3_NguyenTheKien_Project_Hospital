@@ -25,48 +25,48 @@ public class APIControllerAdvice {
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (a, b) -> a));
         return ResponseEntity.badRequest().body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 400, "error", "Bad Request", "message", errors));
+                "status", 400, "error", "Lỗi dữ liệu", "message", errors));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 401, "error", "Unauthorized", "message", "Invalid username or password"));
+                "status", 401, "error", "Không xác thực", "message", "Sai tên đăng nhập hoặc mật khẩu"));
     }
 
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<Map<String, Object>> handleLocked(LockedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 403, "error", "Forbidden", "message", "Account is locked"));
+                "status", 403, "error", "Bị khóa", "message", "Tài khoản đã bị khóa"));
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 404, "error", "Not Found", "message", ex.getMessage()));
+                "status", 404, "error", "Không tìm thấy", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<Map<String, Object>> handleConflict(ConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 409, "error", "Conflict", "message", ex.getMessage()));
+                "status", 409, "error", "Xung đột dữ liệu", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<Map<String, Object>> handleTokenRefresh(TokenRefreshException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 401, "error", "Unauthorized", "message", ex.getMessage()));
+                "status", 401, "error", "Không xác thực", "message", ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", 500, "error", "Internal Server Error", "message", ex.getMessage()));
+                "status", 500, "error", "Lỗi hệ thống", "message", ex.getMessage()));
     }
 }

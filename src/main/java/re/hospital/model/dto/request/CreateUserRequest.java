@@ -9,19 +9,19 @@ import java.util.Set;
 
 @Data
 public class CreateUserRequest {
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50)
+    @NotBlank(message = "Tên đăng nhập không được để trống")
+    @Size(min = 3, max = 50, message = "Tên đăng nhập phải từ 3 đến 50 ký tự")
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email invalid format")
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không đúng định dạng")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6)
+    @NotBlank(message = "Mật khẩu không được để trống")
+    @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
     private String password;
 
-    @NotBlank(message = "Full name is required")
+    @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
 
     private String phone;

@@ -3,13 +3,12 @@ package re.hospital.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http. ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import re.hospital.exception.TokenRefreshException;
-import re.hospital.model.dto.request.LoginRequest;
-import re.hospital.model.dto.request.RefreshTokenRequest;
-import re.hospital.model.dto.request.RegisterRequest;
+import re.hospital.model.dto.request.*;
 import re.hospital.model.dto.response.ApiResponse;
 import re.hospital.model.dto.response.JWTResponse;
 import re.hospital.model.dto.response.TokenRefreshResponse;
@@ -19,10 +18,6 @@ import re.hospital.security.jwt.JWTProvider;
 import re.hospital.security.principal.CustomUserDetails;
 import re.hospital.service.AuthService;
 import re.hospital.service.RefreshTokenService;
-import re.hospital.model.dto.request.ChangePasswordRequest;
-import re.hospital.model.dto.request.ForgotPasswordRequest;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import re.hospital.model.dto.request.ResetPasswordRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -36,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JWTResponse>> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Login successful", authService.login(request)));
+        return ResponseEntity.ok(ApiResponse.success("Đăng nhập thành công", authService.login(request)));
     }
 
     @PostMapping("/register")
@@ -49,13 +44,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(
             @Valid @RequestBody RefreshTokenRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.getRefreshToken())
-                .orElseThrow(() -> new TokenRefreshException("Refresh token not found"));
+                .orElseThrow(() -> new TokenRefreshException("Không tìm thấy refresh token"));
 
         refreshTokenService.verifyExpiration(refreshToken);
 
         String newAccessToken = jwtProvider.generateAccessToken(new CustomUserDetails(refreshToken.getUser()));
 
-        return ResponseEntity.ok(ApiResponse.success("Token refreshed", TokenRefreshResponse.builder()
+        return ResponseEntity.ok(ApiResponse.success("Làm mới token thành công", TokenRefreshResponse.builder()
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken.getToken())
                 .type("Bearer").build()));
@@ -70,8 +65,9 @@ public class AuthController {
                 .getAuthentication().getPrincipal();
         refreshTokenService.revokeAllUserTokens(userDetails.getUser().getId());
 
-        return ResponseEntity.ok(ApiResponse.success("Logout successful"));
+        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
     }
+
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<String>> changePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -91,6 +87,4 @@ public class AuthController {
             @Valid @RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(ApiResponse.success(authService.resetPassword(request)));
     }
-
-
 }
